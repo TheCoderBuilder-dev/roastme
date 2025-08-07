@@ -33,16 +33,14 @@ export default function RootLayout({
       >
         <SupabaseProvider>
           <ToastProvider>
-            <main className="container mx-auto px-4 py-6">
-              {children}
-            </main>
+            {children}
             <footer className="border-t border-gray-200 py-6 mt-10">
               <div className="container mx-auto px-4 text-center text-gray-500 text-sm">
                 © {new Date().getFullYear()} Roast Me Rank. All rights reserved.
                 <div className="mt-2 flex justify-center gap-4">
-                  <a href="#" className="hover:text-orange-500">Terms</a>
-                  <a href="#" className="hover:text-orange-500">Privacy</a>
-                  <a href="#" className="hover:text-orange-500">Guidelines</a>
+                  <a href="/terms" className="hover:text-orange-500">Terms</a>
+                  <a href="/privacy" className="hover:text-orange-500">Privacy</a>
+                  <a href="/guidelines" className="hover:text-orange-500">Guidelines</a>
                 </div>
               </div>
             </footer>

@@ -40,6 +40,26 @@ export default function RegisterPage() {
       return;
     }
 
+    // Username validation
+    if (username.length < 3) {
+      toast({
+        title: 'Error',
+        description: 'Username must be at least 3 characters long.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // Check if username contains only allowed characters
+    if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+      toast({
+        title: 'Error',
+        description: 'Username can only contain letters, numbers, underscores and hyphens.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -47,26 +67,31 @@ export default function RegisterPage() {
       
       if (error) {
         toast({
-          title: 'Error',
-          description: error.message,
+          title: 'Registration Error',
+          description: error.message || 'An error occurred during registration.',
           variant: 'destructive',
         });
+        setIsLoading(false);
         return;
       }
       
       toast({
         title: 'Success',
-        description: 'Check your email for the confirmation link.',
+        description: 'Registration successful! Check your email for the confirmation link.',
       });
       
-      router.push('/');
+      // Redirect after a short delay to allow toast to be seen
+      setTimeout(() => {
+        router.push('/login');
+      }, 2000);
+      
     } catch (error: any) {
+      console.error('Registration error:', error);
       toast({
         title: 'Error',
-        description: error.message || 'An error occurred during sign up.',
+        description: error.message || 'An unexpected error occurred during sign up.',
         variant: 'destructive',
       });
-    } finally {
       setIsLoading(false);
     }
   };

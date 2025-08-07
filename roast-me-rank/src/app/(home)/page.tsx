@@ -1,3 +1,5 @@
+"use client";
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -178,12 +180,12 @@ export default function Home() {
             Upload your pic, take the heat, and climb the ranks.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/register">
-              <Button size="lg" className="bg-white text-orange-600 hover:bg-orange-100">
-                Sign Up & Get Roasted
+            <Link href="/auth/register">
+              <Button size="lg" className="w-full">
+                Sign Up Now
               </Button>
             </Link>
-            <Link href="/discover">
+            <Link href="/main/discover">
               <Button size="lg" variant="outline" className="border-white text-white hover:bg-orange-600">
                 <Shuffle className="h-5 w-5 mr-2" />
                 Discover Roastees
@@ -325,7 +327,7 @@ export default function Home() {
             </div>
             
             <div className="mt-6 border-t border-gray-100 pt-6 text-center">
-              <Link href="/register">
+              <Link href="/auth/register">
                 <Button variant="fire" size="lg">
                   Get Started Now
                 </Button>

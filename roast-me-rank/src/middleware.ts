@@ -1,32 +1,74 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { createClient } from '@/lib/supabase-server'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
 
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl
-  
-  // Create a response object to modify and return
+  const requestUrl = new URL(request.url)
   const response = NextResponse.next()
-  
-  // Check if the user is authenticated
-  const supabase = await createClient()
+
+  // Create a Supabase client
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return request.cookies.get(name)?.value
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          request.cookies.set({
+            name,
+            value,
+            ...options,
+          })
+          response.cookies.set({
+            name,
+            value,
+            ...options,
+          })
+        },
+        remove(name: string, options: CookieOptions) {
+          request.cookies.set({
+            name,
+            value: '',
+            ...options,
+          })
+          response.cookies.set({
+            name,
+            value: '',
+            ...options,
+          })
+        },
+      },
+    }
+  )
+
   const { data: { session } } = await supabase.auth.getSession()
+
+  // Protected routes that require authentication
+  const protectedRoutes = ['/profile', '/notifications', '/settings', '/challenges', '/discover', '/achievements', '/leaderboard']
   
-  // Define public routes that don't require authentication
-  const publicRoutes = ['/login', '/register', '/forgot-password']
-  // Define auth routes that should redirect to home if already authenticated
-  const authRoutes = ['/login', '/register', '/forgot-password']
-  
-  // For auth routes, redirect to home if already logged in
-  if (authRoutes.includes(pathname) && session) {
+  // Check if the current route is protected
+  const isProtectedRoute = protectedRoutes.some(route => 
+    requestUrl.pathname === route || requestUrl.pathname.startsWith(route + '/')
+  )
+
+  // Authentication routes
+  const authRoutes = ['/auth/login', '/auth/register']
+  const isAuthRoute = authRoutes.some(route => 
+    requestUrl.pathname.startsWith(route)
+  )
+
+  // If the user is not logged in and is trying to access a protected route
+  if (!session && isProtectedRoute) {
+    return NextResponse.redirect(new URL('/auth/login', request.url))
+  }
+
+  // If the user is logged in and is trying to access an auth route
+  if (session && isAuthRoute) {
     return NextResponse.redirect(new URL('/', request.url))
   }
-  
-  // For protected routes, redirect to login if not authenticated
-  if (!publicRoutes.includes(pathname) && !pathname.startsWith('/_next') && !session) {
-    return NextResponse.redirect(new URL('/login', request.url))
-  }
-  
+
   return response
 }
 

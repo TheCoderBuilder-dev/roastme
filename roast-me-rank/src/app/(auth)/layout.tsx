@@ -1,3 +1,7 @@
+'use client';
+
+import { NavBar } from '@/components/NavBar';
+
 export default function AuthLayout({
   children,
 }: {
@@ -5,7 +9,10 @@ export default function AuthLayout({
 }) {
   return (
     <>
-      {children}
+      <NavBar />
+      <div className="container mx-auto px-4 py-6">
+        {children}
+      </div>
     </>
   )
 }

@@ -1,18 +1,21 @@
+'use client';
+
 import React from 'react';
 import { ProfileHeader } from '@/components/ProfileHeader';
 import { RoastSubmission } from '@/components/RoastSubmission';
 import { RoastCard } from '@/components/RoastCard';
 import { User, RoastWithUser } from '@/lib/types';
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import { formatDate } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Award, Flag, MessageSquare, Share2 } from 'lucide-react';
 
-// This would be a server component in a real app
-// We'd fetch data from Supabase here
-export default function ProfilePage({ params }: { params: { username: string } }) {
-  const { username } = params;
+// Convert to client component
+export default function ProfilePage() {
+  // Use useParams hook for client component
+  const params = useParams();
+  const username = params?.username as string;
   
   // For demonstration, we'll create mock data
   // In a real app, this would be fetched from the database
@@ -21,7 +24,7 @@ export default function ProfilePage({ params }: { params: { username: string } }
     username: username,
     email: 'user@example.com',
     bio: 'Just a regular person looking to get roasted 🔥',
-    avatarUrl: null,
+    avatarUrl: undefined,
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString(), // 30 days ago
     level: 18,
     xp: 2500,
@@ -43,7 +46,7 @@ export default function ProfilePage({ params }: { params: { username: string } }
       isFlagged: false,
       user: {
         username: 'RoastKing',
-        avatarUrl: null,
+        avatarUrl: undefined,
         level: 32
       }
     },
@@ -59,7 +62,7 @@ export default function ProfilePage({ params }: { params: { username: string } }
       isFlagged: false,
       user: {
         username: 'BurnMaster',
-        avatarUrl: null,
+        avatarUrl: undefined,
         level: 28
       }
     },
@@ -75,7 +78,7 @@ export default function ProfilePage({ params }: { params: { username: string } }
       isFlagged: false,
       user: {
         username: 'FlameQueen',
-        avatarUrl: null,
+        avatarUrl: undefined,
         level: 25
       }
     },
@@ -152,7 +155,7 @@ export default function ProfilePage({ params }: { params: { username: string } }
   const currentUser = {
     id: '1',
     username: 'RoastKing',
-    avatarUrl: null,
+    avatarUrl: undefined,
   };
   
   const isCurrentUser = currentUser.id === mockUser.id;

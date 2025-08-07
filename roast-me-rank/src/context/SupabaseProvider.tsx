@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useEffect } from 'react'
 import { createBrowserSupabaseClient } from '@/lib/supabase-browser'
 import { useRouter } from 'next/navigation'
 import { type User, type Session } from '@supabase/supabase-js'
+import { createUserProfile, checkUsernameExists } from '@/app/api/auth/actions'
 
 type SupabaseContextType = {
   user: User | null
@@ -45,36 +46,51 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
   }, [supabase, router])
 
   const signUp = async (email: string, password: string, username: string) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          username,
-        },
-      },
-    })
-
-    if (!error) {
-      // After successful signup, attempt to create a profile in the profiles table
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert([
-          {
-            id: (await supabase.auth.getUser()).data.user?.id,
-            username,
-            email,
-            created_at: new Date().toISOString(),
-          },
-        ])
-
-      if (profileError) {
-        console.error('Error creating profile:', profileError)
-        return { error: profileError }
+    try {
+      // Check if username is taken using server action
+      const usernameCheck = await checkUsernameExists(username);
+      
+      if (usernameCheck.exists) {
+        return { error: { message: 'Username is already taken' } };
       }
-    }
+      
+      // Register the user with auth service
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            username,
+          },
+        },
+      });
 
-    return { error }
+      if (signUpError) {
+        console.error('Error during signup:', signUpError);
+        return { error: signUpError };
+      }
+
+      if (!data.user) {
+        return { error: { message: 'No user returned from signup' } };
+      }
+
+      // Create user profile using server action (bypasses RLS)
+      const profileResult = await createUserProfile(
+        data.user.id,
+        username,
+        email
+      );
+
+      if (!profileResult.success) {
+        console.error('Error creating profile:', profileResult.error);
+        return { error: profileResult.error };
+      }
+
+      return { error: null };
+    } catch (err) {
+      console.error('Unexpected error in signup process:', err);
+      return { error: err };
+    }
   }
 
   const signIn = async (email: string, password: string) => {
@@ -88,8 +104,7 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = async () => {
     await supabase.auth.signOut()
-    router.refresh()
-    router.push('/')
+    router.push('/login')
   }
 
   const value = {

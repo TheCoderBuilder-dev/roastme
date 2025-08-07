@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -53,6 +55,7 @@ export function NavBar({ user, notifications = 0, onLogout }: NavBarProps) {
     { name: 'Home', href: '/', icon: <Home className="h-5 w-5" /> },
     { name: 'Discover', href: '/discover', icon: <Search className="h-5 w-5" /> },
     { name: 'Leaderboard', href: '/leaderboard', icon: <Trophy className="h-5 w-5" /> },
+    { name: 'Achievements', href: '/achievements', icon: <Trophy className="h-5 w-5" /> },
   ];
   
   return (
@@ -111,10 +114,10 @@ export function NavBar({ user, notifications = 0, onLogout }: NavBarProps) {
               </>
             ) : (
               <>
-                <Link href="/login">
+                <Link href="/auth/login">
                   <Button variant="ghost">Log in</Button>
                 </Link>
-                <Link href="/register">
+                <Link href="/auth/register">
                   <Button variant="fire">Sign up</Button>
                 </Link>
               </>
@@ -200,12 +203,12 @@ export function NavBar({ user, notifications = 0, onLogout }: NavBarProps) {
               </>
             ) : (
               <div className="flex flex-col gap-2 mt-2 pt-2 border-t border-gray-200">
-                <Link href="/login" onClick={closeMenu}>
+                <Link href="/auth/login" onClick={closeMenu}>
                   <Button variant="outline" className="w-full">
                     Log in
                   </Button>
                 </Link>
-                <Link href="/register" onClick={closeMenu}>
+                <Link href="/auth/register" onClick={closeMenu}>
                   <Button variant="fire" className="w-full">
                     Sign up
                   </Button>
